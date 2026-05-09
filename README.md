@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kill the Dashboard
 
-## Getting Started
+> Ask a question. Get a dashboard. No pre-built pages.
 
-First, run the development server:
+An AI agent that generates custom analytics dashboards from natural language. Instead of fixed charts, the agent queries your e-commerce data, picks the right visualizations, and builds the dashboard on the fly — every time.
 
+---
+
+## Prerequisites — install these first
+
+Before you can run the app, you need two things:
+
+### 1. Node.js (version 18 or higher)
+Node.js is the engine that runs the app.
+
+- Download from: **[nodejs.org](https://nodejs.org)** — click the "LTS" version
+- After installing, open a terminal and check: `node --version` (should show v18 or higher)
+
+### 2. An AI API key
+You need **one** of:
+
+| Provider | Where to get it | Cost |
+|----------|----------------|------|
+| OpenAI (GPT-4o) | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | Pay-per-use (~$0.01–0.05 per question) |
+| Anthropic (Claude) | [console.anthropic.com](https://console.anthropic.com) | Pay-per-use (~$0.01–0.05 per question) |
+
+---
+
+## Setup
+
+### 1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/YOUR_USERNAME/kill-the-dashboard.git
+cd kill-the-dashboard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
+```bash
+npm install
+```
+This downloads all the libraries the app needs (~30 seconds).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Set up your API key
+Create a file called `.env.local` in the project root folder. Copy and paste one of these:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**If using OpenAI:**
+```
+OPENAI_API_KEY=sk-your-key-here
+AI_PROVIDER=openai
+```
 
-## Learn More
+**If using Anthropic:**
+```
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+AI_PROVIDER=anthropic
+```
 
-To learn more about Next.js, take a look at the following resources:
+> ⚠️ Never share this file or send it to anyone — it contains your private API key.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Generate the database
+This creates ~10,000 fake e-commerce orders to explore:
+```bash
+npm run seed
+```
+You should see output ending with `Seed complete!`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 5. Start the app
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Using the app
+
+1. **Click a suggested question** in the left panel, or type your own
+2. **Wait ~10–20 seconds** — the agent queries the database and generates your dashboard
+3. **Click "Drill deeper" buttons** to generate a follow-up dashboard
+4. **Toggle "Start Feed"** at the bottom of the sidebar to simulate live incoming orders
+
+### Good questions to start with
+- `Why did revenue drop last week?` ← best demo, shows a dramatic revenue collapse
+- `Show me my top 5 customers by spend`
+- `How are sales trending by category this quarter?`
+- `Which region is growing the fastest?`
+- `What's the cancellation rate trend?`
+
+---
+
+## Troubleshooting
+
+**"Error: no such table: orders"**
+You haven't seeded the database yet. Run `npm run seed` first.
+
+**Dashboard loads but shows "An error occurred"**
+Your API key is wrong or missing. Check your `.env.local` file — no spaces around the `=` sign, no quotes around the key value.
+
+**App is slow to respond (10–20 seconds)**
+This is normal — the agent makes 3–5 database queries before generating the dashboard.
+
+**Port 3000 already in use**
+Run `npm run dev -- -p 3001` to use a different port, then open [http://localhost:3001](http://localhost:3001).
+
+---
+
+## Project structure
+
+```
+kill-the-dashboard/
+├── app/
+│   ├── page.tsx               ← Main page (chat + dashboard layout)
+│   └── api/
+│       ├── chat/route.ts      ← AI agent: receives questions, runs tools, streams response
+│       └── live-feed/route.ts ← Live data feed: inserts new fake orders every tick
+├── components/
+│   ├── chat/                  ← Chat panel, suggested questions, live feed indicator
+│   └── dashboard/             ← KPI cards, charts, dashboard canvas
+├── lib/
+│   ├── schema.ts              ← What a dashboard can look like (widget types and fields)
+│   ├── tools.ts               ← Agent tools: executeSql + renderDashboard
+│   └── db.ts                  ← SQLite database connection
+├── scripts/
+│   └── seed.mjs               ← Generates the 10,000 fake orders (run once)
+└── data/
+    └── store.db               ← The database (created by npm run seed, not in git)
+```
+
+---
+
+## Tech stack
+
+| What | Tool |
+|------|------|
+| Web framework | Next.js 14 |
+| AI integration | Vercel AI SDK |
+| Database | SQLite (via better-sqlite3) |
+| Charts | Recharts |
+| Styling | Tailwind CSS |
