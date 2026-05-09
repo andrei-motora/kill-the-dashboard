@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ChartWidget as ChartWidgetType } from "@/lib/schema";
 import {
@@ -15,14 +16,26 @@ const DEFAULT_COLORS = [
   "#eab308", "#22c55e", "#14b8a6", "#06b6d4", "#3b82f6",
 ];
 
+const CHART_TYPES = ["line", "bar", "area", "pie"] as const;
+type ChartType = typeof CHART_TYPES[number];
+
+const TYPE_LABELS: Record<ChartType, string> = {
+  line: "Line",
+  bar: "Bar",
+  area: "Area",
+  pie: "Pie",
+};
+
 interface ChartWidgetProps {
   widget: ChartWidgetType;
   onDrilldown?: (question: string) => void;
 }
 
 export function ChartWidget({ widget, onDrilldown }: ChartWidgetProps) {
-  const { chartType, title, data, xKey, yKeys, colors } = widget;
+  const { title, data, xKey, yKeys, colors } = widget;
+  const [chartType, setChartType] = useState<ChartType>(widget.chartType);
   const palette = colors?.length ? colors : DEFAULT_COLORS;
+  const isMultiSeries = yKeys.length > 1;
 
   const handleClick = (entry: Record<string, unknown>) => {
     if (!onDrilldown || !entry) return;
@@ -31,7 +44,9 @@ export function ChartWidget({ widget, onDrilldown }: ChartWidgetProps) {
   };
 
   const renderChart = () => {
-    switch (chartType) {
+    const effectiveType = chartType === "pie" && isMultiSeries ? "bar" : chartType;
+
+    switch (effectiveType) {
       case "line":
         return (
           <LineChart data={data}>
@@ -126,7 +141,32 @@ export function ChartWidget({ widget, onDrilldown }: ChartWidgetProps) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium">{title}</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-base font-medium">{title}</CardTitle>
+          <div className="flex items-center gap-1 p-0.5 rounded-lg bg-muted">
+            {CHART_TYPES.map((t) => {
+              const disabled = t === "pie" && isMultiSeries;
+              const active = chartType === t;
+              return (
+                <button
+                  key={t}
+                  onClick={() => !disabled && setChartType(t)}
+                  disabled={disabled}
+                  title={disabled ? "Pie charts only support a single data series" : TYPE_LABELS[t]}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                    active
+                      ? "bg-background text-foreground shadow-sm"
+                      : disabled
+                      ? "text-muted-foreground/30 cursor-not-allowed"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {TYPE_LABELS[t]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="h-[300px] w-full">
