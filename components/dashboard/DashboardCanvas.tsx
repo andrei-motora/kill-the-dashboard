@@ -4,6 +4,7 @@ import type { DashboardLayout } from "@/lib/schema";
 import { KPICard } from "./KPICard";
 import { ChartWidget } from "./ChartWidget";
 import { EventsWidget } from "./EventsWidget";
+import { GlobeWidget } from "./GlobeWidget";
 import { LogoMark, SparklesIcon, ArrowRightIcon } from "../icons";
 
 interface DashboardCanvasProps {
@@ -108,6 +109,7 @@ export function DashboardCanvas({
 
   const kpis = layout.widgets.filter((w) => w.type === "kpi");
   const charts = layout.widgets.filter((w) => w.type === "chart");
+  const maps = layout.widgets.filter((w) => w.type === "map");
   const events = layout.widgets.filter((w) => w.type === "events");
 
   return (
@@ -143,6 +145,11 @@ export function DashboardCanvas({
               w.type === "chart" && <ChartWidget key={i} widget={w} onDrilldown={onDrilldown} />
             ))}
           </div>
+        )}
+
+        {/* Globe maps */}
+        {maps.map((w, i) =>
+          w.type === "map" ? <GlobeWidget key={i} widget={w} /> : null
         )}
 
         {/* Events */}
