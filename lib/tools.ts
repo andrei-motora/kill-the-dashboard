@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import { getDb } from "./db";
 import { DashboardLayoutSchema } from "./schema";
+import { getTavilyKey } from "./config";
 
 export const executeSql = tool({
   description:
@@ -37,9 +38,70 @@ export const renderDashboard = tool({
   description:
     "Render a dashboard layout with KPI cards, charts, and insights. " +
     "Call this ONCE after you have gathered all the data you need via executeSql. " +
-    "Include 2-4 KPI cards first, then 1-3 charts, an insights paragraph, and suggested follow-up questions.",
+    "Include 2-4 KPI cards first, then 1-3 charts, an insights paragraph, and suggested follow-up questions. " +
+    "If you detected an anomaly and searched for world events, include an 'events' widget with the findings.",
   parameters: DashboardLayoutSchema,
   execute: async (layout) => {
     return layout;
+  },
+});
+
+export const searchWorldEvents = tool({
+  description:
+    "Search for real-world news, economic, or political events that may explain a business anomaly. " +
+    "Use this when you detect an unusual pattern — a revenue drop or spike >15%, category collapse, " +
+    "or sudden shift in cancellations. Search around the dates of the anomaly. " +
+    "After getting results, include an 'events' widget in the dashboard.",
+  parameters: z.object({
+    query: z.string().describe(
+      "Search query describing the anomaly and time period, e.g. " +
+      "'electronics consumer demand drop April 2026' or 'supply chain disruption Q1 2026'"
+    ),
+    anomalySummary: z.string().describe(
+      "Brief description of the business anomaly, e.g. 'Electronics revenue dropped 83% week of Apr 21'"
+    ),
+  }),
+  execute: async ({ query, anomalySummary }) => {
+    const tavilyKey = getTavilyKey();
+    if (!tavilyKey) {
+      return {
+        results: [],
+        answer: null,
+        anomalySummary,
+        error: "Tavily API key not configured. Add it via the setup screen (gear icon).",
+      };
+    }
+
+    try {
+      const res = await fetch("https://api.tavily.com/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: tavilyKey,
+          query,
+          search_depth: "basic",
+          max_results: 5,
+          include_answer: true,
+        }),
+      });
+
+      if (!res.ok) {
+        return { results: [], answer: null, anomalySummary, error: `Tavily error: ${res.status}` };
+      }
+
+      const data = await res.json();
+      return {
+        results: (data.results ?? []).map((r: Record<string, string>) => ({
+          title: r.title,
+          url: r.url,
+          content: r.content?.slice(0, 400),
+          publishedDate: r.published_date ?? "",
+        })),
+        answer: data.answer ?? null,
+        anomalySummary,
+      };
+    } catch (e: unknown) {
+      return { results: [], answer: null, anomalySummary, error: String(e) };
+    }
   },
 });

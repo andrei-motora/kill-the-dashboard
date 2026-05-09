@@ -34,10 +34,25 @@ export const MapWidgetSchema = z.object({
   ),
 });
 
+export const EventsWidgetSchema = z.object({
+  type: z.literal("events"),
+  title: z.string(),
+  correlationInsight: z.string().describe("1-2 sentences explaining how these events connect to the business anomaly"),
+  events: z.array(
+    z.object({
+      date: z.string().describe("Date or date range of the event, e.g. 'Apr 2026' or 'Q1 2026'"),
+      title: z.string().describe("Short headline for the event"),
+      description: z.string().describe("2-3 sentence summary of the event"),
+      relevance: z.string().describe("1 sentence explaining why this event matters to the metric"),
+    })
+  ).max(5),
+});
+
 export const WidgetSchema = z.discriminatedUnion("type", [
   KPIWidgetSchema,
   ChartWidgetSchema,
   MapWidgetSchema,
+  EventsWidgetSchema,
 ]);
 
 export const DashboardLayoutSchema = z.object({
@@ -52,3 +67,4 @@ export type Widget = z.infer<typeof WidgetSchema>;
 export type KPIWidget = z.infer<typeof KPIWidgetSchema>;
 export type ChartWidget = z.infer<typeof ChartWidgetSchema>;
 export type MapWidget = z.infer<typeof MapWidgetSchema>;
+export type EventsWidget = z.infer<typeof EventsWidgetSchema>;

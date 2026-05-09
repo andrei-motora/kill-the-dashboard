@@ -1,6 +1,7 @@
 import { streamText } from "ai";
 import { getModel } from "@/lib/provider";
-import { executeSql, renderDashboard } from "@/lib/tools";
+import { executeSql, renderDashboard, searchWorldEvents } from "@/lib/tools";
+import { getTavilyKey } from "@/lib/config";
 
 export const maxDuration = 60;
 
@@ -31,13 +32,22 @@ WORKFLOW:
 1. Analyze the user's question to determine what data is needed
 2. Call executeSql 2-5 times to gather relevant data (aggregations, comparisons, breakdowns)
 3. Always compare to a previous period for context (e.g. last week vs the week before)
-4. Call renderDashboard ONCE with a complete layout
+4. If you detect a significant anomaly (revenue drop/spike >15%, category collapse, cancellation spike), call searchWorldEvents to find real-world events that may explain it
+5. Call renderDashboard ONCE with a complete layout
+
+WORLD EVENTS CORRELATION:
+- When the data shows a notable anomaly, proactively call searchWorldEvents before renderDashboard
+- After getting search results, synthesize them into an "events" widget in the dashboard
+- The events widget should contain 2-4 real events with dates, descriptions, and why each is relevant
+- If searchWorldEvents returns no Tavily key configured, skip the events widget
 
 IMPORTANT RULES FOR renderDashboard:
 - Include 2-4 KPI widgets with type "kpi"
 - Include 1-3 chart widgets with type "chart"
+- If world events were found, include 1 widget with type "events"
 - Each KPI must have: type, title, value (string for currency like "$12,345"), delta (number), deltaLabel (string), sentiment ("positive"/"negative"/"neutral")
 - Each chart must have: type, chartType ("line"/"bar"/"pie"/"area"), title, data (array of objects), xKey (string), yKeys (array of strings)
+- Each events widget must have: type, title, correlationInsight, events (array with date/title/description/relevance)
 - Include an insights string (2-3 sentences citing specific numbers)
 - Include suggestedQuestions array (3-4 follow-up questions)
 - For time series charts, use short date labels like "Apr 21"
@@ -51,6 +61,7 @@ GUIDELINES:
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
+  const hasTavily = !!getTavilyKey();
 
   try {
     const result = streamText({
@@ -60,8 +71,9 @@ export async function POST(req: Request) {
       tools: {
         executeSql,
         renderDashboard,
+        ...(hasTavily ? { searchWorldEvents } : {}),
       },
-      maxSteps: 8,
+      maxSteps: 10,
       onError: (error) => {
         console.error("[chat] streamText error:", error);
       },

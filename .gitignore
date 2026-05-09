@@ -40,5 +40,8 @@ next-env.d.ts
 /data/*.db-shm
 /data/*.db-wal
 
+# local API keys (never commit)
+/data/keys.json
+
 # Claude Code workspace files
 .claude/

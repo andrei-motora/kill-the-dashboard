@@ -5,7 +5,7 @@ import type { Message } from "ai";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SuggestedQuestions } from "./SuggestedQuestions";
 import { LiveFeedIndicator } from "./LiveFeedIndicator";
-import { Send, Loader2, Bot, User, Zap } from "lucide-react";
+import { Send, Loader2, Bot, User, Zap, Settings } from "lucide-react";
 
 interface LiveFeed {
   isActive: boolean;
@@ -30,6 +30,7 @@ interface ChatPanelProps {
   onSubmit: (e: React.FormEvent) => void;
   onSuggestedQuestion: (question: string) => void;
   liveFeed: LiveFeed;
+  onOpenSettings?: () => void;
 }
 
 export function ChatPanel({
@@ -40,6 +41,7 @@ export function ChatPanel({
   onSubmit,
   onSuggestedQuestion,
   liveFeed,
+  onOpenSettings,
 }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -56,12 +58,23 @@ export function ChatPanel({
   return (
     <div className="flex flex-col h-full border-r bg-background">
       <div className="px-5 py-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
-        <h2 className="font-bold text-lg flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Zap className="w-4 h-4 text-primary-foreground" />
-          </div>
-          Kill the Dashboard
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-lg flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <Zap className="w-4 h-4 text-primary-foreground" />
+            </div>
+            Kill the Dashboard
+          </h2>
+          {onOpenSettings && (
+            <button
+              onClick={onOpenSettings}
+              title="Configure API keys"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground mt-1 ml-10">
           AI-generated analytics from your questions
         </p>

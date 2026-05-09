@@ -3,6 +3,7 @@
 import type { DashboardLayout } from "@/lib/schema";
 import { KPICard } from "./KPICard";
 import { ChartWidget } from "./ChartWidget";
+import { EventsWidget } from "./EventsWidget";
 import { BarChart3, Sparkles, TrendingUp, PieChart, Activity } from "lucide-react";
 
 interface DashboardCanvasProps {
@@ -93,6 +94,7 @@ export function DashboardCanvas({
 
   const kpis = layout.widgets.filter((w) => w.type === "kpi");
   const charts = layout.widgets.filter((w) => w.type === "chart");
+  const events = layout.widgets.filter((w) => w.type === "events");
 
   return (
     <div className="p-6 space-y-6 overflow-auto h-full scrollbar-thin">
@@ -119,6 +121,14 @@ export function DashboardCanvas({
           {charts.map((w, i) => (
             <ChartWidget key={i} widget={w} onDrilldown={onDrilldown} />
           ))}
+        </div>
+      )}
+
+      {events.length > 0 && (
+        <div className="space-y-4">
+          {events.map((w, i) =>
+            w.type === "events" ? <EventsWidget key={i} widget={w} /> : null
+          )}
         </div>
       )}
 
