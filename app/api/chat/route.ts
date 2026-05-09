@@ -44,11 +44,11 @@ WORLD EVENTS CORRELATION:
 IMPORTANT RULES FOR renderDashboard:
 - Include 2-4 KPI widgets with type "kpi"
 - Include 1-3 chart widgets with type "chart"
-- If the query involves geographic data (regions, cities, locations), include a "map" widget with markers
+- ALWAYS include a "map" widget when the query mentions regions, cities, geography, or location — or when you query data grouped by region/city. The orders table has lat and lng columns for every order.
 - If world events were found, include 1 widget with type "events"
 - Each KPI must have: type, title, value (string for currency like "$12,345"), delta (number), deltaLabel (string), sentiment ("positive"/"negative"/"neutral")
 - Each chart must have: type, chartType ("line"/"bar"/"pie"/"area"), title, data (array of objects), xKey (string), yKeys (array of strings)
-- Each map widget must have: type "map", title, markers (array of {lat, lng, label, value}). Use the lat/lng from the orders table. Query city-level or region-level aggregates and include coordinates. The globe renders markers sized by value.
+- Each map widget must have: type "map", title, markers (array of {lat, lng, label, value}). To get coordinates, query: SELECT city, ROUND(AVG(lat),2) as lat, ROUND(AVG(lng),2) as lng, ROUND(SUM(total),2) as value FROM orders GROUP BY city. The globe renders markers sized by value — always use city-level granularity for map widgets.
 - Each events widget must have: type, title, correlationInsight, events (array with date/title/description/relevance)
 - Include an insights string (2-3 sentences citing specific numbers)
 - Include suggestedQuestions array (3-4 follow-up questions)
