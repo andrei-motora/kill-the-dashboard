@@ -1,47 +1,43 @@
 "use client";
 
-import { Globe, Calendar } from "lucide-react";
+import { GlobeIcon, ArrowRightIcon } from "../icons";
 import type { EventsWidget as EventsWidgetType } from "@/lib/schema";
 
 export function EventsWidget({ widget }: { widget: EventsWidgetType }) {
   return (
-    <div className="rounded-xl border bg-card col-span-2">
-      <div className="p-5 space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md bg-blue-500/10 flex items-center justify-center">
-            <Globe className="w-3.5 h-3.5 text-blue-500" />
-          </div>
-          <h3 className="font-semibold text-sm">{widget.title}</h3>
+    <section className="events-panel">
+      <header className="events-head">
+        <div className="events-title">
+          <span className="events-icon">
+            <GlobeIcon size={14} style={{ color: "#38bdf8" }} />
+          </span>
+          <h3>{widget.title}</h3>
+          <span className="events-count mono">{widget.events.length}</span>
         </div>
+      </header>
 
-        {widget.correlationInsight && (
-          <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-blue-500/40 pl-3 italic">
-            {widget.correlationInsight}
-          </p>
-        )}
+      {widget.correlationInsight && (
+        <p className="events-corr">{widget.correlationInsight}</p>
+      )}
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {widget.events.map((event, i) => (
-            <div key={i} className="rounded-lg bg-muted/40 p-3.5 space-y-2">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-semibold leading-tight">{event.title}</p>
-                {event.date && (
-                  <span className="text-xs text-muted-foreground whitespace-nowrap flex items-center gap-1 mt-0.5 flex-shrink-0">
-                    <Calendar className="w-3 h-3" />
-                    {event.date}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">{event.description}</p>
-              {event.relevance && (
-                <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-                  → {event.relevance}
-                </p>
-              )}
+      <div className="events-grid">
+        {widget.events.map((event, i) => (
+          <article key={i} className="event-card">
+            <div className="event-top">
+              <span className="event-date mono">{event.date}</span>
+              <span className="mono" style={{ fontSize: 10, color: "var(--muted-2)", letterSpacing: ".12em" }}>
+                0{i + 1}
+              </span>
             </div>
-          ))}
-        </div>
+            <h4 className="event-title-text">{event.title}</h4>
+            <p className="event-body">{event.description}</p>
+            <div className="event-rel">
+              <ArrowRightIcon size={12} style={{ color: "#38bdf8", flexShrink: 0, marginTop: 1 }} />
+              <span>{event.relevance}</span>
+            </div>
+          </article>
+        ))}
       </div>
-    </div>
+    </section>
   );
 }

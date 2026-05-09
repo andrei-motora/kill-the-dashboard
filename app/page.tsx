@@ -4,6 +4,7 @@ import { useChat } from "ai/react";
 import { useCallback, useMemo, useEffect, useState } from "react";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { DashboardCanvas } from "@/components/dashboard/DashboardCanvas";
+import { CollapsedRail } from "@/components/CollapsedRail";
 import { SetupModal } from "@/components/SetupModal";
 import { useLiveFeed } from "@/lib/use-live-feed";
 import type { DashboardLayout } from "@/lib/schema";
@@ -14,8 +15,9 @@ export default function Home() {
 
   const liveFeed = useLiveFeed(3000);
 
-  const [setupDone, setSetupDone] = useState<boolean | null>(null); // null = loading
+  const [setupDone, setSetupDone] = useState<boolean | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [sidebar, setSidebar] = useState<"expanded" | "collapsed">("expanded");
 
   useEffect(() => {
     fetch("/api/setup")
@@ -71,8 +73,13 @@ export default function Home() {
         <SetupModal onComplete={() => { setSetupDone(true); setShowSettings(false); }} />
       )}
 
-      <div className="flex h-screen">
-        <div className="w-[380px] flex-shrink-0">
+      <div className="app app-bg">
+        {sidebar === "collapsed" ? (
+          <CollapsedRail
+            onExpand={() => setSidebar("expanded")}
+            onOpenSettings={() => setShowSettings(true)}
+          />
+        ) : (
           <ChatPanel
             messages={messages}
             input={input}
@@ -82,16 +89,15 @@ export default function Home() {
             onSuggestedQuestion={handleSuggestedQuestion}
             liveFeed={liveFeed}
             onOpenSettings={() => setShowSettings(true)}
+            onCollapse={() => setSidebar("collapsed")}
           />
-        </div>
-        <div className="flex-1 overflow-hidden bg-muted/30">
-          <DashboardCanvas
-            layout={dashboardLayout}
-            isLoading={isLoading}
-            onDrilldown={handleDrilldown}
-            onSuggestedQuestion={handleSuggestedQuestion}
-          />
-        </div>
+        )}
+        <DashboardCanvas
+          layout={dashboardLayout}
+          isLoading={isLoading}
+          onDrilldown={handleDrilldown}
+          onSuggestedQuestion={handleSuggestedQuestion}
+        />
       </div>
     </>
   );

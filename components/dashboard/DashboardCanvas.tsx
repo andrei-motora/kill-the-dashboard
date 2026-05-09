@@ -4,7 +4,7 @@ import type { DashboardLayout } from "@/lib/schema";
 import { KPICard } from "./KPICard";
 import { ChartWidget } from "./ChartWidget";
 import { EventsWidget } from "./EventsWidget";
-import { BarChart3, Sparkles, TrendingUp, PieChart, Activity } from "lucide-react";
+import { LogoMark, SparklesIcon, ArrowRightIcon } from "../icons";
 
 interface DashboardCanvasProps {
   layout: DashboardLayout | null;
@@ -13,24 +13,70 @@ interface DashboardCanvasProps {
   onSuggestedQuestion: (question: string) => void;
 }
 
-function SkeletonCard() {
+function CanvasEmpty() {
   return (
-    <div className="rounded-xl border bg-card animate-pulse">
-      <div className="p-5 space-y-3">
-        <div className="h-3.5 bg-muted rounded w-2/5" />
-        <div className="h-9 bg-muted rounded w-3/5" />
-        <div className="h-5 bg-muted rounded-full w-1/3" />
+    <div className="canvas-empty">
+      <div className="canvas-empty-watermark">
+        <LogoMark size={420} glow={false} />
+      </div>
+      <div className="canvas-empty-content">
+        <div className="canvas-empty-pill">
+          <span className="brand-pulse" />
+          <span className="smallcaps" style={{ color: "var(--accent-2)" }}>Ready</span>
+          <span style={{ color: "var(--muted-2)", fontSize: 11 }}>
+            · 10,000+ orders · May 2025 — Apr 2026
+          </span>
+        </div>
+        <h1 className="canvas-empty-title">No pre-built dashboards here.</h1>
+        <p className="canvas-empty-sub">
+          The agent queries your data, picks the right visualizations, and assembles a dashboard
+          on demand — every time. Ask a question on the left to start.
+        </p>
+        <div className="canvas-empty-features">
+          <span className="feat-pill"><span className="feat-num mono">01</span> SQL queries on demand</span>
+          <span className="feat-pill"><span className="feat-num mono">02</span> KPI cards &amp; charts</span>
+          <span className="feat-pill"><span className="feat-num mono">03</span> Live data feed</span>
+          <span className="feat-pill"><span className="feat-num mono">04</span> External signals</span>
+        </div>
       </div>
     </div>
   );
 }
 
-function SkeletonChart() {
+function CanvasLoading() {
   return (
-    <div className="rounded-xl border bg-card animate-pulse">
-      <div className="p-6 space-y-4">
-        <div className="h-4 bg-muted rounded w-1/4" />
-        <div className="h-[280px] bg-muted/60 rounded-lg" />
+    <div className="canvas-loading">
+      <div className="cl-titlebar">
+        <span className="skel" style={{ width: 22, height: 22, borderRadius: 6 }} />
+        <span className="skel" style={{ width: 280, height: 18 }} />
+        <span style={{ flex: 1 }} />
+        <span className="skel" style={{ width: 130, height: 14 }} />
+      </div>
+      <div className="cl-tools">
+        <span className="cl-tool"><span className="cl-pulse" />executeSql · querying</span>
+        <span className="cl-tool"><span className="cl-pulse" />executeSql · breakdown</span>
+        <span className="cl-tool"><span className="cl-pulse" />searchWorldEvents</span>
+        <span className="cl-tool"><span className="cl-pulse" />renderDashboard</span>
+      </div>
+      <div className="cl-grid-3">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="kpi-card" style={{ paddingTop: 16 }}>
+            <span className="skel" style={{ width: 90, height: 11, marginBottom: 14 }} />
+            <span className="skel" style={{ width: 130, height: 28, marginBottom: 12 }} />
+            <span className="skel" style={{ width: 90, height: 18, borderRadius: 999 }} />
+          </div>
+        ))}
+      </div>
+      <div className="cl-grid-2">
+        {[0, 1].map((i) => (
+          <div key={i} className="chart-card">
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+              <span className="skel" style={{ width: 160, height: 14 }} />
+              <span className="skel" style={{ width: 160, height: 26, borderRadius: 8 }} />
+            </div>
+            <span className="skel" style={{ width: "100%", height: 240, borderRadius: 10 }} />
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -44,48 +90,16 @@ export function DashboardCanvas({
 }: DashboardCanvasProps) {
   if (!layout && !isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center px-8">
-        <div className="relative mb-8">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            <BarChart3 className="w-10 h-10 text-primary" />
-          </div>
-          <div className="absolute -top-2 -right-2 w-8 h-8 rounded-lg bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center rotate-12">
-            <TrendingUp className="w-4 h-4 text-primary" />
-          </div>
-          <div className="absolute -bottom-1 -left-3 w-7 h-7 rounded-lg bg-gradient-to-br from-primary/25 to-primary/5 flex items-center justify-center -rotate-12">
-            <PieChart className="w-3.5 h-3.5 text-primary" />
-          </div>
-        </div>
-        <h2 className="text-2xl font-bold mb-3 tracking-tight">No pre-built dashboards here</h2>
-        <p className="text-muted-foreground max-w-lg leading-relaxed">
-          Ask a question and the AI agent will query your data, pick the right visualizations,
-          and generate a complete dashboard — KPIs, charts, and insights, all in seconds.
-        </p>
-        <div className="flex items-center gap-1.5 mt-6 text-xs text-muted-foreground/70">
-          <Activity className="w-3.5 h-3.5" />
-          <span>10,000+ orders across 12 months ready to explore</span>
-        </div>
+      <div className="canvas-wrap thin-scroll app-bg">
+        <CanvasEmpty />
       </div>
     );
   }
 
   if (isLoading && !layout) {
     return (
-      <div className="p-6 space-y-6 animate-in fade-in duration-300">
-        <div className="flex items-center gap-3">
-          <div className="h-5 w-5 rounded bg-primary/20 animate-pulse" />
-          <div className="h-6 bg-muted rounded w-1/3 animate-pulse" />
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <SkeletonChart />
-          <SkeletonChart />
-        </div>
-        <div className="h-20 bg-muted/40 rounded-xl animate-pulse" />
+      <div className="canvas-wrap thin-scroll app-bg">
+        <CanvasLoading />
       </div>
     );
   }
@@ -97,71 +111,71 @@ export function DashboardCanvas({
   const events = layout.widgets.filter((w) => w.type === "events");
 
   return (
-    <div className="p-6 space-y-6 overflow-auto h-full scrollbar-thin">
-      <div className="flex items-center gap-2.5">
-        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary" />
-        </div>
-        <h1 className="text-xl font-bold tracking-tight">{layout.title}</h1>
-      </div>
-
-      {kpis.length > 0 && (
-        <div
-          className="grid gap-4"
-          style={{ gridTemplateColumns: `repeat(${Math.min(kpis.length, 4)}, 1fr)` }}
-        >
-          {kpis.map((w, i) => (
-            <KPICard key={i} widget={w} />
-          ))}
-        </div>
-      )}
-
-      {charts.length > 0 && (
-        <div className={`grid gap-4 ${charts.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-          {charts.map((w, i) => (
-            <ChartWidget key={i} widget={w} onDrilldown={onDrilldown} />
-          ))}
-        </div>
-      )}
-
-      {events.length > 0 && (
-        <div className="space-y-4">
-          {events.map((w, i) =>
-            w.type === "events" ? <EventsWidget key={i} widget={w} /> : null
-          )}
-        </div>
-      )}
-
-      {layout.insights && (
-        <div className="rounded-xl border bg-gradient-to-r from-primary/5 to-transparent p-5">
-          <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-primary mb-1.5 uppercase tracking-wider">Insights</p>
-              <p className="text-sm leading-relaxed">{layout.insights}</p>
-            </div>
+    <div className="canvas-wrap thin-scroll app-bg">
+      <div className="canvas-dashboard">
+        {/* Title */}
+        <div className="canvas-titlebar">
+          <div className="canvas-titlebar-left">
+            <span className="canvas-title-icon">
+              <SparklesIcon size={15} style={{ color: "#38bdf8" }} />
+            </span>
+            <h1 className="canvas-title">{layout.title}</h1>
           </div>
         </div>
-      )}
 
-      {layout.suggestedQuestions.length > 0 && (
-        <div className="space-y-3 pb-4">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Drill deeper</p>
-          <div className="flex flex-wrap gap-2">
-            {layout.suggestedQuestions.map((q, i) => (
-              <button
-                key={i}
-                onClick={() => onSuggestedQuestion(q)}
-                className="px-4 py-2 text-sm rounded-full border hover:bg-primary/5 hover:border-primary/20 transition-all cursor-pointer"
-              >
-                {q}
-              </button>
+        {/* KPIs */}
+        {kpis.length > 0 && (
+          <div className="kpi-grid" style={{
+            gridTemplateColumns: `repeat(${Math.min(kpis.length, 4)}, 1fr)`,
+          }}>
+            {kpis.map((w, i) => (
+              w.type === "kpi" && <KPICard key={i} widget={w} />
             ))}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Charts */}
+        {charts.length > 0 && (
+          <div className="chart-grid" style={{
+            gridTemplateColumns: charts.length === 1 ? "1fr" : "1fr 1fr",
+          }}>
+            {charts.map((w, i) => (
+              w.type === "chart" && <ChartWidget key={i} widget={w} onDrilldown={onDrilldown} />
+            ))}
+          </div>
+        )}
+
+        {/* Events */}
+        {events.map((w, i) =>
+          w.type === "events" ? <EventsWidget key={i} widget={w} /> : null
+        )}
+
+        {/* Insights */}
+        {layout.insights && (
+          <div className="insight">
+            <div className="insight-tag">
+              <SparklesIcon size={12} style={{ color: "#38bdf8" }} />
+              <span className="smallcaps" style={{ color: "var(--accent-2)" }}>Insight</span>
+            </div>
+            <p className="insight-text">{layout.insights}</p>
+          </div>
+        )}
+
+        {/* Drill deeper */}
+        {layout.suggestedQuestions.length > 0 && (
+          <div className="drill">
+            <div className="smallcaps" style={{ color: "var(--muted)" }}>Drill deeper</div>
+            <div className="drill-chips">
+              {layout.suggestedQuestions.map((q, i) => (
+                <button key={i} className="drill-chip" onClick={() => onSuggestedQuestion(q)}>
+                  <span>{q}</span>
+                  <ArrowRightIcon size={13} style={{ color: "#38bdf8" }} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

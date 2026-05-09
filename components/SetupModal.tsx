@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KeyRound, Zap } from "lucide-react";
+import { LogoMark, KeyIcon, GlobeIcon, ArrowRightIcon, XIcon, LockIcon } from "./icons";
 
 interface SetupModalProps {
   initialProvider?: string;
@@ -12,12 +12,15 @@ export function SetupModal({ initialProvider = "anthropic", onComplete }: SetupM
   const [provider, setProvider] = useState(initialProvider);
   const [apiKey, setApiKey] = useState("");
   const [tavilyKey, setTavilyKey] = useState("");
+  const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const valid = apiKey.trim().length > 8;
+
   async function handleSave() {
-    if (!apiKey.trim()) {
-      setError("An AI API key is required to use the app.");
+    if (!valid) {
+      setError("An API key is required to use the app.");
       return;
     }
     setSaving(true);
@@ -41,105 +44,137 @@ export function SetupModal({ initialProvider = "anthropic", onComplete }: SetupM
     }
   }
 
-  const providerLinks: Record<string, string> = {
-    anthropic: "console.anthropic.com → API Keys",
-    openai: "platform.openai.com/api-keys",
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-background rounded-2xl border shadow-2xl p-8 space-y-6 mx-4">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-            <Zap className="w-6 h-6 text-primary-foreground" />
+    <div className="modal-overlay">
+      <div className="modal-card" role="dialog" aria-modal="true">
+        <button className="modal-close" onClick={onComplete} aria-label="Close">
+          <XIcon size={14} />
+        </button>
+
+        <div style={{ marginBottom: 16 }}>
+          <LogoMark size={40} />
+        </div>
+
+        <h2 className="modal-title">Set up Kill the Dashboard</h2>
+        <p className="modal-sub">
+          Bring your own key. We don&apos;t store, proxy, or log your prompts —
+          everything runs against your API account.
+        </p>
+
+        {/* Step 1 — Provider */}
+        <div className="modal-step">
+          <div className="modal-step-head">
+            <span className="step-num">01</span>
+            <span className="step-label">Choose your model provider</span>
           </div>
-          <div>
-            <h2 className="text-xl font-bold">Kill the Dashboard</h2>
-            <p className="text-sm text-muted-foreground">Configure your API keys to get started</p>
+          <div className="provider-grid">
+            {(["anthropic", "openai"] as const).map((id) => (
+              <button
+                key={id}
+                type="button"
+                className={`provider-card ${provider === id ? "provider-active" : ""}`}
+                onClick={() => setProvider(id)}
+              >
+                <div className="provider-mark">
+                  {id === "anthropic" ? (
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6">
+                      <path d="M5 20 12 5l7 15M8.5 14h7" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6">
+                      <circle cx="12" cy="12" r="7" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </div>
+                <div className="provider-text">
+                  <div className="provider-name">{id === "anthropic" ? "Anthropic" : "OpenAI"}</div>
+                  <div className="provider-sub">{id === "anthropic" ? "claude-sonnet-4" : "gpt-4o"}</div>
+                </div>
+                <div className="provider-radio">
+                  <span className={`provider-dot ${provider === id ? "provider-dot-on" : ""}`} />
+                </div>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="space-y-5">
-          {/* Provider selector */}
-          <div>
-            <label className="text-sm font-semibold mb-2 block">AI Provider</label>
-            <div className="grid grid-cols-2 gap-2">
-              {(["anthropic", "openai"] as const).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setProvider(p)}
-                  className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
-                    provider === p
-                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                      : "hover:bg-muted border-border"
-                  }`}
-                >
-                  {p === "anthropic" ? "Anthropic (Claude)" : "OpenAI (GPT-4o)"}
-                </button>
-              ))}
-            </div>
+        {/* Step 2 — API key */}
+        <div className="modal-step">
+          <div className="modal-step-head">
+            <span className="step-num">02</span>
+            <span className="step-label">{provider === "anthropic" ? "Anthropic" : "OpenAI"} API key</span>
+            <span className="step-required">required</span>
           </div>
-
-          {/* AI API key */}
-          <div>
-            <label className="text-sm font-semibold mb-1.5 flex items-center gap-1">
-              <KeyRound className="w-3.5 h-3.5" />
-              {provider === "anthropic" ? "Anthropic" : "OpenAI"} API Key
-              <span className="text-red-500">*</span>
-            </label>
+          <div className="key-input">
+            <KeyIcon size={14} style={{ color: "#64748b" }} />
             <input
-              type="password"
+              type={showKey ? "text" : "password"}
               value={apiKey}
               onChange={(e) => { setApiKey(e.target.value); setError(""); }}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
-              placeholder={provider === "anthropic" ? "sk-ant-api03-..." : "sk-proj-..."}
-              className="w-full rounded-lg border bg-muted/30 px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+              placeholder={provider === "anthropic" ? "sk-ant-api03-…" : "sk-proj-…"}
+              spellCheck={false}
+              autoComplete="off"
             />
-            <p className="text-xs text-muted-foreground mt-1.5">
-              Get it from: <span className="font-medium">{providerLinks[provider]}</span>
-            </p>
+            <button type="button" className="key-eye" onClick={() => setShowKey((s) => !s)}>
+              {showKey ? "hide" : "show"}
+            </button>
           </div>
+          <div className="key-hint">
+            Get one at <span className="mono">{provider === "anthropic" ? "console.anthropic.com" : "platform.openai.com"}</span>
+          </div>
+        </div>
 
-          {/* Tavily key */}
-          <div>
-            <label className="text-sm font-semibold mb-1.5 block">
-              Tavily API Key{" "}
-              <span className="text-xs font-normal text-muted-foreground">
-                — optional, enables world events correlation
-              </span>
-            </label>
+        {/* Step 3 — Tavily */}
+        <div className="modal-step">
+          <div className="modal-step-head">
+            <span className="step-num">03</span>
+            <span className="step-label">Tavily key</span>
+            <span className="step-badge">Enables external signals</span>
+          </div>
+          <div className="key-input">
+            <GlobeIcon size={14} style={{ color: "#64748b" }} />
             <input
               type="password"
               value={tavilyKey}
               onChange={(e) => setTavilyKey(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
-              placeholder="tvly-..."
-              className="w-full rounded-lg border bg-muted/30 px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+              placeholder="tvly-…"
+              spellCheck={false}
+              autoComplete="off"
             />
-            <p className="text-xs text-muted-foreground mt-1.5">
-              Get it from: <span className="font-medium">app.tavily.com</span> — free tier, 1,000 searches/month
-            </p>
           </div>
-
-          {error && (
-            <p className="text-sm text-red-500 bg-red-500/5 border border-red-500/20 rounded-lg px-3 py-2">
-              {error}
-            </p>
-          )}
+          <div className="key-hint">Optional · 1,000 searches/mo on the free tier</div>
         </div>
 
+        {error && (
+          <p style={{
+            fontSize: 12,
+            color: "#ef4444",
+            background: "rgba(239,68,68,.08)",
+            border: "1px solid rgba(239,68,68,.25)",
+            borderRadius: 8,
+            padding: "8px 12px",
+            margin: "0 0 8px",
+          }}>
+            {error}
+          </p>
+        )}
+
         <button
+          className={`cta ${valid ? "cta-on" : ""}`}
+          disabled={!valid || saving}
           onClick={handleSave}
-          disabled={saving || !apiKey.trim()}
-          className="w-full rounded-xl bg-primary text-primary-foreground py-3 font-semibold text-sm hover:bg-primary/90 disabled:opacity-40 transition-all shadow-sm"
         >
-          {saving ? "Saving..." : "Start Using the App →"}
+          <span>{saving ? "Saving…" : "Start using the app"}</span>
+          <ArrowRightIcon size={15} style={{ color: valid ? "#0b0f19" : "#475985" }} />
         </button>
 
-        <p className="text-xs text-center text-muted-foreground">
-          Keys are stored locally in <code className="bg-muted px-1 rounded">data/keys.json</code> — never sent anywhere else.
-        </p>
+        <div className="modal-foot">
+          <LockIcon size={11} style={{ color: "#64748b" }} />
+          Stored locally in <span className="mono">data/keys.json</span> · never transmitted
+        </div>
       </div>
     </div>
   );

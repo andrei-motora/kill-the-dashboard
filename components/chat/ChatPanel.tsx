@@ -2,10 +2,12 @@
 
 import { useRef, useEffect } from "react";
 import type { Message } from "ai";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { SuggestedQuestions } from "./SuggestedQuestions";
 import { LiveFeedIndicator } from "./LiveFeedIndicator";
-import { Send, Loader2, Bot, User, Zap, Settings } from "lucide-react";
+import {
+  LogoMark, SettingsIcon, ChevronLeftIcon, SendIcon,
+  ShieldBotIcon, UserDotIcon,
+} from "../icons";
 
 interface LiveFeed {
   isActive: boolean;
@@ -31,6 +33,7 @@ interface ChatPanelProps {
   onSuggestedQuestion: (question: string) => void;
   liveFeed: LiveFeed;
   onOpenSettings?: () => void;
+  onCollapse?: () => void;
 }
 
 export function ChatPanel({
@@ -42,90 +45,93 @@ export function ChatPanel({
   onSuggestedQuestion,
   liveFeed,
   onOpenSettings,
+  onCollapse,
 }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
 
   const visibleMessages = messages.filter(
     (m) => m.role === "user" || (m.role === "assistant" && m.content)
   );
 
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [visibleMessages.length, isLoading]);
+
   return (
-    <div className="flex flex-col h-full border-r bg-background">
-      <div className="px-5 py-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
-        <div className="flex items-center justify-between">
-          <h2 className="font-bold text-lg flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Zap className="w-4 h-4 text-primary-foreground" />
+    <aside className="chat-panel">
+      {/* Header */}
+      <header className="chat-head">
+        <div className="brand">
+          <LogoMark size={30} />
+          <div>
+            <div className="brand-name">Kill the Dashboard</div>
+            <div className="brand-sub">
+              <span className="brand-pulse" />
+              AI-generated analytics
             </div>
-            Kill the Dashboard
-          </h2>
+          </div>
+        </div>
+        <div className="chat-head-actions">
           {onOpenSettings && (
-            <button
-              onClick={onOpenSettings}
-              title="Configure API keys"
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-            >
-              <Settings className="w-4 h-4" />
+            <button className="icon-btn" title="Settings" onClick={onOpenSettings}>
+              <SettingsIcon size={15} />
+            </button>
+          )}
+          {onCollapse && (
+            <button className="icon-btn" title="Collapse sidebar" onClick={onCollapse}>
+              <ChevronLeftIcon size={16} />
             </button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground mt-1 ml-10">
-          AI-generated analytics from your questions
-        </p>
-      </div>
+      </header>
 
-      <ScrollArea className="flex-1 py-4 scrollbar-thin" ref={scrollRef}>
-        {visibleMessages.length === 0 && (
-          <div className="pt-2">
-            <SuggestedQuestions onSelect={onSuggestedQuestion} />
-          </div>
-        )}
-
-        <div className="space-y-4 px-4">
-          {visibleMessages.map((m) => (
-            <div key={m.id} className="flex gap-2.5">
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                  m.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-gradient-to-br from-primary/20 to-primary/5"
-                }`}
-              >
+      {/* Body */}
+      <div className="chat-body thin-scroll" ref={scrollRef}>
+        {visibleMessages.length === 0 && !isLoading ? (
+          <SuggestedQuestions onSelect={onSuggestedQuestion} />
+        ) : (
+          <div className="msg-list">
+            {visibleMessages.map((m) => (
+              <div key={m.id} className={`msg ${m.role === "user" ? "msg-user" : "msg-agent"}`}>
                 {m.role === "user" ? (
-                  <User className="w-3.5 h-3.5" />
+                  <>
+                    <div className="msg-bubble msg-bubble-user">{m.content}</div>
+                    <div className="avatar avatar-user">
+                      <UserDotIcon size={14} style={{ color: "#f8fafc" }} />
+                    </div>
+                  </>
                 ) : (
-                  <Bot className="w-3.5 h-3.5 text-primary" />
+                  <>
+                    <div className="avatar avatar-agent">
+                      <ShieldBotIcon size={14} style={{ color: "#38bdf8" }} />
+                    </div>
+                    <div className="msg-bubble msg-bubble-agent">{m.content}</div>
+                  </>
                 )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-muted-foreground mb-1">
-                  {m.role === "user" ? "You" : "Agent"}
-                </p>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.content}</p>
+            ))}
+            {isLoading && (
+              <div className="msg msg-agent">
+                <div className="avatar avatar-agent">
+                  <ShieldBotIcon size={14} style={{ color: "#38bdf8" }} />
+                </div>
+                <div className="msg-bubble msg-bubble-agent thinking">
+                  <span className="dots">
+                    <i style={{ animationDelay: "0s" }} />
+                    <i style={{ animationDelay: ".15s" }} />
+                    <i style={{ animationDelay: ".3s" }} />
+                  </span>
+                  <span style={{ color: "var(--muted)" }}>Analyzing your data…</span>
+                </div>
               </div>
-            </div>
-          ))}
+            )}
+          </div>
+        )}
+      </div>
 
-          {isLoading && (
-            <div className="flex gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center flex-shrink-0">
-                <Bot className="w-3.5 h-3.5 text-primary" />
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1">
-                <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                Analyzing your data...
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-
+      {/* Live feed */}
       <LiveFeedIndicator
         isActive={liveFeed.isActive}
         totalOrders={liveFeed.totalOrders}
@@ -134,24 +140,25 @@ export function ChatPanel({
         onToggle={liveFeed.toggle}
       />
 
-      <form onSubmit={onSubmit} className="p-4 border-t bg-muted/30">
-        <div className="flex gap-2">
+      {/* Input */}
+      <form className="chat-input" onSubmit={onSubmit}>
+        <div className="chat-input-wrap">
           <input
             value={input}
             onChange={(e) => onInputChange(e.target.value)}
-            placeholder="Ask about your data..."
-            className="flex-1 rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
+            placeholder="Ask about your data…"
             disabled={isLoading}
           />
           <button
             type="submit"
+            className="send-btn"
             disabled={isLoading || !input.trim()}
-            className="rounded-lg bg-primary text-primary-foreground px-3 py-2.5 hover:bg-primary/90 disabled:opacity-40 transition-all shadow-sm hover:shadow"
+            title="Send"
           >
-            <Send className="w-4 h-4" />
+            <SendIcon size={14} style={{ color: "#0b0f19" }} />
           </button>
         </div>
       </form>
-    </div>
+    </aside>
   );
 }

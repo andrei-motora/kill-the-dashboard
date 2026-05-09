@@ -1,13 +1,22 @@
 "use client";
 
-import { MessageSquare } from "lucide-react";
+import { TrendUpIcon, SearchIcon, LayersIcon, GlobeIcon, FilterIcon, ChevronRightIcon } from "../icons";
 
-const INITIAL_QUESTIONS = [
-  "Why did revenue drop last week?",
-  "Show me my top 5 customers by spend",
-  "How are sales trending by category this quarter?",
-  "Which region is growing the fastest?",
+const QUESTIONS = [
+  { icon: "trend",  text: "Why did revenue drop last week?",                  hint: "best demo" },
+  { icon: "search", text: "Show me my top 5 customers by spend",              hint: null },
+  { icon: "layers", text: "How are sales trending by category this quarter?", hint: null },
+  { icon: "globe",  text: "Which region is growing the fastest?",             hint: null },
+  { icon: "filter", text: "What's the cancellation rate trend?",              hint: null },
 ];
+
+const ICON_MAP: Record<string, React.FC<{ size?: number }>> = {
+  trend: TrendUpIcon,
+  search: SearchIcon,
+  layers: LayersIcon,
+  globe: GlobeIcon,
+  filter: FilterIcon,
+};
 
 interface SuggestedQuestionsProps {
   onSelect: (question: string) => void;
@@ -15,23 +24,25 @@ interface SuggestedQuestionsProps {
 
 export function SuggestedQuestions({ onSelect }: SuggestedQuestionsProps) {
   return (
-    <div className="space-y-3 px-4">
-      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-        <MessageSquare className="w-3.5 h-3.5" />
-        <span>Try asking</span>
+    <div className="chat-empty">
+      <div className="chat-empty-head">
+        <span className="smallcaps" style={{ color: "#38bdf8" }}>Try asking</span>
+        <span style={{ color: "var(--muted-2)", fontSize: 11 }}>· {QUESTIONS.length} prompts</span>
       </div>
-      <div className="space-y-1.5">
-        {INITIAL_QUESTIONS.map((q) => (
-          <button
-            key={q}
-            onClick={() => onSelect(q)}
-            className="w-full text-left px-3 py-2.5 text-sm rounded-lg border hover:bg-primary/5 hover:border-primary/20 transition-all cursor-pointer group"
-          >
-            <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-              {q}
-            </span>
-          </button>
-        ))}
+      <div className="sq-list">
+        {QUESTIONS.map((q, i) => {
+          const Icon = ICON_MAP[q.icon] || SearchIcon;
+          return (
+            <button key={i} className="sq-chip" onClick={() => onSelect(q.text)}>
+              <span className="sq-icon">
+                <Icon size={14} />
+              </span>
+              <span className="sq-text">{q.text}</span>
+              {q.hint && <span className="sq-hint">{q.hint}</span>}
+              <ChevronRightIcon size={14} style={{ color: "#475985" }} className="sq-arrow" />
+            </button>
+          );
+        })}
       </div>
     </div>
   );

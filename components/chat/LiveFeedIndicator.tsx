@@ -1,6 +1,6 @@
 "use client";
 
-import { Radio, Database } from "lucide-react";
+import { DatabaseIcon } from "../icons";
 
 interface LiveOrder {
   id: string;
@@ -27,60 +27,46 @@ export function LiveFeedIndicator({
   onToggle,
 }: LiveFeedIndicatorProps) {
   return (
-    <div className="border-t px-4 py-3 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Database className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-xs font-medium text-muted-foreground">
+    <div className="live-feed">
+      <div className="live-feed-row">
+        <div className="live-feed-meta">
+          <DatabaseIcon size={13} style={{ color: "#64748b" }} />
+          <span className="mono" style={{ fontSize: 11.5, color: "var(--muted)" }}>
             {totalOrders.toLocaleString()} orders
           </span>
+          {isActive && (
+            <span style={{ color: "var(--muted-2)", fontSize: 11 }}>
+              · <span style={{ color: "var(--accent-2)" }}>{ordersPerSecond}</span>/tick
+            </span>
+          )}
         </div>
         <button
           onClick={onToggle}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            isActive
-              ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
-              : "bg-muted text-muted-foreground hover:bg-accent"
-          }`}
+          className={`feed-toggle ${isActive ? "feed-toggle-on" : ""}`}
         >
-          <span className="relative flex h-2 w-2">
-            {isActive && (
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            )}
-            <span
-              className={`relative inline-flex rounded-full h-2 w-2 ${
-                isActive ? "bg-emerald-500" : "bg-muted-foreground/40"
-              }`}
-            />
-          </span>
+          <span className={`feed-dot ${isActive ? "feed-dot-on" : ""}`} />
           {isActive ? "Live" : "Start Feed"}
         </button>
       </div>
-
-      {isActive && (
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600">
-            <Radio className="w-3 h-3" />
-            <span>{ordersPerSecond} orders/tick incoming</span>
-          </div>
-          {recentOrders.length > 0 && (
-            <div className="space-y-1 max-h-[120px] overflow-hidden">
-              {recentOrders.slice(0, 4).map((order, i) => (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between text-xs py-1 px-2 rounded bg-muted/50"
-                  style={{ opacity: 1 - i * 0.2 }}
-                >
-                  <span className="text-muted-foreground">
-                    {order.category} · {order.city}
-                  </span>
-                  <span className="font-medium">
-                    ${order.total.toFixed(0)}
-                  </span>
-                </div>
-              ))}
+      {isActive && recentOrders.length > 0 && (
+        <div className="live-feed-rows">
+          {recentOrders.slice(0, 4).map((order, i) => (
+            <div
+              key={order.id + i}
+              className="feed-row"
+              style={{ opacity: 1 - i * 0.18, animationDelay: `${i * 60}ms` }}
+            >
+              <span className="mono" style={{ color: "var(--muted-2)", fontSize: 10 }}>
+                {order.id.slice(0, 10)}
+              </span>
+              <span style={{ color: "var(--text-2)", flex: 1, marginLeft: 10 }}>
+                {order.category} · <span style={{ color: "var(--muted)" }}>{order.city}</span>
+              </span>
+              <span className="mono" style={{ color: "var(--text)", fontWeight: 600 }}>
+                ${order.total.toFixed(2)}
+              </span>
             </div>
-          )}
+          ))}
         </div>
       )}
     </div>
