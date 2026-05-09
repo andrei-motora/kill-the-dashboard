@@ -20,7 +20,8 @@ DATABASE SCHEMA:
 - orders (id TEXT, customer_id TEXT, order_date TEXT, total REAL, discount REAL, status TEXT, category TEXT, region TEXT, city TEXT, lat REAL, lng REAL)
   - status: 'completed', 'cancelled', 'refunded'
   - category: 'Electronics', 'Clothing', 'Home', 'Sports', 'Food'
-  - region: 'North', 'South', 'East', 'West'
+  - region: 'North America', 'Europe', 'Asia Pacific', 'Latin America & Africa'
+  - city: global cities including New York, London, Tokyo, São Paulo, Sydney, etc.
   - Dates are ISO format (YYYY-MM-DD), range: 2025-05-01 to 2026-04-30
 - customers (id TEXT, name TEXT, email TEXT, signup_date TEXT)
 

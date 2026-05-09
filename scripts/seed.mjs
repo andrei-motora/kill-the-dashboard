@@ -73,37 +73,42 @@ function formatDate(d) {
   return d.toISOString().split("T")[0];
 }
 
-// --- City data with lat/lng ---
+// --- City data with lat/lng (global) ---
 const cities = {
-  West: [
-    { name: "Los Angeles", lat: 34.05, lng: -118.24 },
-    { name: "San Francisco", lat: 37.77, lng: -122.42 },
-    { name: "Seattle", lat: 47.61, lng: -122.33 },
-    { name: "Portland", lat: 45.52, lng: -122.68 },
-  ],
-  South: [
-    { name: "Houston", lat: 29.76, lng: -95.37 },
-    { name: "Miami", lat: 25.76, lng: -80.19 },
-    { name: "Atlanta", lat: 33.75, lng: -84.39 },
-    { name: "Dallas", lat: 32.78, lng: -96.8 },
-  ],
-  East: [
+  "North America": [
     { name: "New York", lat: 40.71, lng: -74.01 },
-    { name: "Boston", lat: 42.36, lng: -71.06 },
-    { name: "Philadelphia", lat: 39.95, lng: -75.17 },
-  ],
-  North: [
+    { name: "Los Angeles", lat: 34.05, lng: -118.24 },
     { name: "Chicago", lat: 41.88, lng: -87.63 },
-    { name: "Detroit", lat: 42.33, lng: -83.05 },
-    { name: "Minneapolis", lat: 44.98, lng: -93.27 },
-    { name: "Denver", lat: 39.74, lng: -104.99 },
+    { name: "Toronto", lat: 43.65, lng: -79.38 },
+    { name: "Mexico City", lat: 19.43, lng: -99.13 },
+  ],
+  "Europe": [
+    { name: "London", lat: 51.51, lng: -0.13 },
+    { name: "Paris", lat: 48.86, lng: 2.35 },
+    { name: "Berlin", lat: 52.52, lng: 13.41 },
+    { name: "Amsterdam", lat: 52.37, lng: 4.90 },
+    { name: "Stockholm", lat: 59.33, lng: 18.07 },
+  ],
+  "Asia Pacific": [
+    { name: "Tokyo", lat: 35.68, lng: 139.69 },
+    { name: "Singapore", lat: 1.35, lng: 103.82 },
+    { name: "Sydney", lat: -33.87, lng: 151.21 },
+    { name: "Seoul", lat: 37.57, lng: 126.98 },
+    { name: "Mumbai", lat: 19.08, lng: 72.88 },
+  ],
+  "Latin America & Africa": [
+    { name: "São Paulo", lat: -23.55, lng: -46.63 },
+    { name: "Buenos Aires", lat: -34.60, lng: -58.38 },
+    { name: "Lagos", lat: 6.52, lng: 3.38 },
+    { name: "Dubai", lat: 25.20, lng: 55.27 },
+    { name: "Cape Town", lat: -33.93, lng: 18.42 },
   ],
 };
 
 const categories = ["Electronics", "Clothing", "Home", "Sports", "Food"];
 const categoryWeights = [30, 25, 20, 15, 10];
-const regions = ["West", "South", "East", "North"];
-const regionWeights = [35, 25, 22, 18];
+const regions = ["North America", "Europe", "Asia Pacific", "Latin America & Africa"];
+const regionWeights = [32, 28, 25, 15];
 
 const categoryPriceRange = {
   Electronics: [50, 500],

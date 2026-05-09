@@ -41,12 +41,13 @@ export function GlobeWidget({ widget }: { widget: MapWidget }) {
       phi: targetPhi,
       theta: targetTheta * 0.6,
       dark: 1,
-      diffuse: 1.2,
-      mapSamples: 20000,
-      mapBrightness: 2.4,
-      baseColor: [0.05, 0.07, 0.12],
+      diffuse: 1.8,
+      mapSamples: 24000,
+      mapBrightness: 6,
+      mapBaseBrightness: 0.02,
+      baseColor: [0.12, 0.15, 0.22],
       markerColor: [0.055, 0.647, 0.914],
-      glowColor: [0.035, 0.06, 0.12],
+      glowColor: [0.06, 0.10, 0.18],
       markers,
     });
 
