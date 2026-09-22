@@ -1071,6 +1071,130 @@ h1, h2, h3, p { text-wrap: pretty; }
   color: var(--muted-2);
 }
 
+/* ── Thinking view ────────────────────────────────────────────────── */
+.thinking-view {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 680px;
+  margin: 0 auto;
+  height: 100%;
+  justify-content: center;
+}
+.thinking-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.thinking-icon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(14,165,233,.1);
+  border: 1px solid rgba(14,165,233,.25);
+  border-radius: 12px;
+  flex-shrink: 0;
+  animation: pulseBlue 2s ease-out infinite;
+}
+.thinking-title {
+  font-family: var(--font-display), sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--text);
+}
+.thinking-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.thinking-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.thinking-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(19,26,42,.6), rgba(14,20,32,.6));
+  animation: thinkingPillIn .35s ease both;
+  transition: background .3s ease, border-color .3s ease, opacity .3s ease;
+}
+.thinking-pill-active {
+  border-color: rgba(14,165,233,.35);
+  background: linear-gradient(180deg, rgba(14,165,233,.08), rgba(14,165,233,.02));
+}
+.thinking-pill-done {
+  opacity: 0.55;
+}
+.thinking-pill-indicator {
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.thinking-pill-active .thinking-pill-indicator {
+  background: rgba(14,165,233,.15);
+  border: 1px solid rgba(14,165,233,.35);
+}
+.thinking-pill-done .thinking-pill-indicator {
+  background: rgba(34,197,94,.12);
+  border: 1px solid rgba(34,197,94,.3);
+  color: #22c55e;
+}
+.thinking-pill-pulse {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulseDot 1.2s ease infinite;
+}
+.thinking-pill-label {
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.3;
+}
+.thinking-pill-active .thinking-pill-label {
+  color: var(--text);
+}
+.thinking-cursor {
+  width: 2px; height: 16px;
+  margin-left: 26px;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: thinkingBlink 1s ease-in-out infinite;
+}
+
+@keyframes thinkingPillIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes thinkingBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+/* Canvas fade transition */
+.canvas-fade-in {
+  animation: canvasFadeIn .5s ease both;
+}
+.canvas-fade-out {
+  animation: canvasFadeOut .3s ease both;
+}
+@keyframes canvasFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes canvasFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 @media (max-width: 1100px) {
   .kpi-grid, .cl-grid-3 { grid-template-columns: repeat(2, 1fr); }
 }

@@ -121,3 +121,7 @@ export function ChevronLeftIcon(p: IconProps) {
 export function ChevronRightIcon(p: IconProps) {
   return <I {...p}><polyline points="9 18 15 12 9 6"/></I>;
 }
+
+export function CheckIcon(p: IconProps) {
+  return <I {...p}><polyline points="20 6 9 17 4 12"/></I>;
+}

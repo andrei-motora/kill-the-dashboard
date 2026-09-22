@@ -7,6 +7,7 @@ import { DashboardCanvas } from "@/components/dashboard/DashboardCanvas";
 import { CollapsedRail } from "@/components/CollapsedRail";
 import { SetupModal } from "@/components/SetupModal";
 import { useLiveFeed } from "@/lib/use-live-feed";
+import { extractThinkingSteps } from "@/lib/thinking-steps";
 import type { DashboardLayout } from "@/lib/schema";
 
 export default function Home() {
@@ -47,6 +48,11 @@ export default function Home() {
     }
     return null;
   }, [messages]);
+
+  const thinkingSteps = useMemo(
+    () => extractThinkingSteps(messages as Parameters<typeof extractThinkingSteps>[0]),
+    [messages]
+  );
 
   const handleSuggestedQuestion = useCallback(
     (question: string) => {
@@ -95,6 +101,7 @@ export default function Home() {
         <DashboardCanvas
           layout={dashboardLayout}
           isLoading={isLoading}
+          thinkingSteps={thinkingSteps}
           onDrilldown={handleDrilldown}
           onSuggestedQuestion={handleSuggestedQuestion}
         />

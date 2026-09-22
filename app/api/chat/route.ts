@@ -60,7 +60,16 @@ GUIDELINES:
 - KPI deltas should be percentage changes (positive = growth, negative = decline)
 - Set sentiment: "positive" for good metrics improving, "negative" for bad trends
 - Suggested questions should be specific and actionable
-- Be concise but specific in insights — cite the numbers you found`;
+- Be concise but specific in insights — cite the numbers you found
+
+CHAT RESPONSE STYLE:
+- Keep your text responses extremely short — 1-2 sentences max.
+- Use a schematic, bullet-point style when summarizing: "Revenue ↓18% WoW · Electronics hit hardest · East region stable"
+- Never write full paragraphs in chat. The dashboard does the talking.
+- After rendering a dashboard, reply with a single-line summary using arrows (↑↓→), separators (·), and key numbers. No filler words.
+- Example good response: "Revenue ↓18% WoW · Cancellations ↑32% · Electronics collapsed, Food steady"
+- Example bad response: "I've analyzed your data and found that revenue decreased by 18% compared to last week. The main driver appears to be..."`;
+
 
 export async function POST(req: Request) {
   const { messages } = await req.json();

@@ -1,15 +1,19 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import type { DashboardLayout } from "@/lib/schema";
+import type { ThinkingStep } from "@/lib/thinking-steps";
 import { KPICard } from "./KPICard";
 import { ChartWidget } from "./ChartWidget";
 import { EventsWidget } from "./EventsWidget";
 import { GlobeWidget } from "./GlobeWidget";
+import { ThinkingView } from "./ThinkingView";
 import { LogoMark, SparklesIcon, ArrowRightIcon } from "../icons";
 
 interface DashboardCanvasProps {
   layout: DashboardLayout | null;
   isLoading: boolean;
+  thinkingSteps: ThinkingStep[];
   onDrilldown: (question: string) => void;
   onSuggestedQuestion: (question: string) => void;
 }
@@ -86,10 +90,33 @@ function CanvasLoading() {
 export function DashboardCanvas({
   layout,
   isLoading,
+  thinkingSteps,
   onDrilldown,
   onSuggestedQuestion,
 }: DashboardCanvasProps) {
-  if (!layout && !isLoading) {
+  const [phase, setPhase] = useState<"empty" | "thinking" | "fade-out" | "dashboard">("empty");
+  const wasThinkingRef = useRef(false);
+
+  useEffect(() => {
+    if (isLoading && !layout) {
+      setPhase("thinking");
+      wasThinkingRef.current = true;
+    } else if (layout) {
+      if (wasThinkingRef.current) {
+        wasThinkingRef.current = false;
+        setPhase("fade-out");
+        const timer = setTimeout(() => setPhase("dashboard"), 300);
+        return () => clearTimeout(timer);
+      } else {
+        setPhase("dashboard");
+      }
+    } else if (!layout && !isLoading) {
+      setPhase("empty");
+      wasThinkingRef.current = false;
+    }
+  }, [layout, isLoading]);
+
+  if (phase === "empty") {
     return (
       <div className="canvas-wrap thin-scroll app-bg">
         <CanvasEmpty />
@@ -97,10 +124,10 @@ export function DashboardCanvas({
     );
   }
 
-  if (isLoading && !layout) {
+  if (phase === "thinking" || phase === "fade-out") {
     return (
-      <div className="canvas-wrap thin-scroll app-bg">
-        <CanvasLoading />
+      <div className={`canvas-wrap thin-scroll app-bg ${phase === "fade-out" ? "canvas-fade-out" : ""}`}>
+        <ThinkingView steps={thinkingSteps} />
       </div>
     );
   }
@@ -114,7 +141,7 @@ export function DashboardCanvas({
 
   return (
     <div className="canvas-wrap thin-scroll app-bg">
-      <div className="canvas-dashboard">
+      <div className="canvas-dashboard canvas-fade-in">
         {/* Title */}
         <div className="canvas-titlebar">
           <div className="canvas-titlebar-left">
